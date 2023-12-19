@@ -1,50 +1,32 @@
+import day05Utils.Mapper
+import day05Utils.Pipeline
 import java.util.LinkedList
 
 class Day05 {
     fun part1(input: String): Number {
-        val seeds = input.split("\n").first().split(" ").mapNotNull { it.toLongOrNull() }
-        val maps = input.split("\n", limit = 2).last().split("\n\n").map{it.trim()}
-        val mappers = LinkedList(maps.map{Mapper(it)})
+        val seeds = input.split("\n").first().split(" ").mapNotNull { it.toLongOrNull() }.map { listOf(it..it) }
+        val maps = input.split("\n", limit = 2).last().split("\n\n").map { it.trim() }
+        val mappers = LinkedList(maps.map { Mapper(it) })
         val pipeline = Pipeline(mappers)
 
-        return seeds.minOf { pipeline.process(it) }
+        return seeds.map{pipeline.process(it)}.map{it.first().first}.min()
     }
 
     fun part2(input: String): Number {
-        return 0
+        val seeds = mutableListOf<List<LongRange>>()
+        val m = input.split("\n").first().split(" ").mapNotNull { it.toLongOrNull() }
+        for (i in m.indices step 2) {
+            seeds.add(listOf( m[i]..<m[i] + m[i + 1]))
+        }
+
+        val maps = input.split("\n", limit = 2).last().split("\n\n").map { it.trim() }
+        val mappers = LinkedList(maps.map { Mapper(it) })
+        val pipeline = Pipeline(mappers)
+
+        return seeds.map{pipeline.process(it)}.flatten().map{it.first}.min()
     }
 }
 
-class Mapper(data: String)
-{
-    private val name: String = data.split("\n", limit = 2).first()
-    private val ranges: List<String> = data.split("\n", limit = 2).last().split("\n")
-
-    fun map(input: Long): Long {
-        for (range in ranges) {
-            val parts = range.split(" ").map { it.toLong() }
-            val min = parts[1]
-            val max = parts[1] + parts[2]
-
-            // not mapped, thus it remains the same
-            if (input < min || input > max) {
-                continue
-            }
-
-            return input + (parts[0] - parts[1])
-        }
-
-        return input
-    }
-}
-
-class Pipeline(private val mappers: LinkedList<Mapper>) {
-    fun process(seed: Long): Long {
-        var interseed = seed
-        for (mapper in mappers) {
-            interseed = mapper.map(interseed)
-        }
-
-        return interseed
-    }
+fun lr(range: IntRange): LongRange {
+    return range.first.toLong()..range.last.toLong()
 }

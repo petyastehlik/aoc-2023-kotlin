@@ -1,3 +1,4 @@
+import day05Utils.Mapper
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
@@ -45,10 +46,10 @@ class DaysTest {
             "src/test/resources/day05_test_input.txt" to (35).toLong(),
             "src/test/resources/day05_full_input.txt" to (51580674).toLong(),
         ),
-//        { input: String -> Day05().part2(input) } to mapOf(
-//            "src/test/resources/day05_test_input.txt" to (46).toLong(),
-//            "src/test/resources/day05_full_input.txt" to (-1).toLong(),
-//        ),
+        { input: String -> Day05().part2(input) } to mapOf(
+            "src/test/resources/day05_test_input.txt" to (46).toLong(),
+            "src/test/resources/day05_full_input.txt" to (-1).toLong(),
+        ),
     )
 
     @Test
@@ -107,10 +108,10 @@ class DaysTest {
 
         @JvmStatic
         fun provideGrids(): Stream<Arguments> {
-            // 012
-            // 345
-            // 678
             return Stream.of(
+                // 0 1 2
+                // 3 4 5
+                // 6 7 8
                 Arguments.of(Grid(3, 3), 0, 1, setOf(1, 3, 4), "top left corner"),
                 Arguments.of(Grid(3, 3), 1, 1, setOf(0, 2, 3, 4, 5), ""),
                 Arguments.of(Grid(3, 3), 2, 1, setOf(1, 4, 5), ""),
@@ -125,13 +126,39 @@ class DaysTest {
                 Arguments.of(Grid(3, 3), 3, 3, setOf(0, 1, 2, 6, 7, 8), "middle row"),
                 Arguments.of(Grid(3, 3), 6, 3, setOf(3, 4, 5), "bottom row"),
 
+                // 0   1   2   3   4
+                // 5   6   7   8   9
+                // 10  11  12  13  14
                 Arguments.of(Grid(5, 3), 6, 3, setOf(0, 1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 14), "larger grid"),
             );
-
-            // 0   1   2   3   4
-            // 5   6   7   8   9
-            // 10  11  12  13  14
         }
+
+        @JvmStatic
+        fun provideRanges(): Stream<Arguments> {
+            return Stream.of(
+                Arguments.of(lr(1..1), lr(2..2), listOf(lr(1..1))),
+                Arguments.of(lr(3..3), lr(2..2), listOf(lr(3..3))),
+                Arguments.of(lr(1..3), lr(2..2), listOf(lr(1..1), lr(2..2), lr(3..3))),
+                Arguments.of(lr(2..2), lr(2..2), listOf(lr(2..2))),
+                Arguments.of(lr(2..2), lr(1..3), listOf(lr(2..2))),
+                Arguments.of(lr(1..3), lr(2..4), listOf(lr(1..1), lr(2..3))),
+                Arguments.of(lr(3..5), lr(2..4), listOf(lr(3..4), lr(5..5))),
+                Arguments.of(lr(2..3), lr(2..4), listOf(lr(2..3))),
+                Arguments.of(lr(3..4), lr(2..4), listOf(lr(3..4))),
+                Arguments.of(lr(1..2), lr(2..2), listOf(lr(1..1), lr(2..2))),
+                Arguments.of(lr(1..3), lr(1..2), listOf(lr(1..2), lr(3..3))),
+                Arguments.of(lr(1..3), lr(2..3), listOf(lr(1..1), lr(2..3))),
+            )
+        }
+
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideRanges")
+    fun splitInputToMatchRangesInFull(input: LongRange, range: LongRange, expected: List<LongRange>) {
+        assertEquals(
+            expected, Mapper.splitRange(input, range)
+        )
     }
 
     @Test
